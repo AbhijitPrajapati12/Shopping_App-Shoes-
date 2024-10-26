@@ -1,0 +1,1 @@
+ C:\\Users\\Dell\\Desktop\\Shopping_App-Shoes-\\.dart_tool\\flutter_build\\10d60f38c7c4db2f00532b749a1e432f\\native_assets.yaml: 

@@ -18,13 +18,23 @@ class _ProductListState extends State<ProductList> {
     'Bata',
     'Puma',
   ];
-
+  late double count = 0;
   late String selectedFilter;
 
   @override
   void initState() {
     super.initState();
     selectedFilter = filters[0];
+  }
+
+  List<Map<String, dynamic>> get filteredProducts {
+    if (selectedFilter == 'All') {
+      return products;
+    } else {
+      return products.where((product) {
+        return product['company'] == selectedFilter;
+      }).toList();
+    }
   }
 
   @override
@@ -94,9 +104,12 @@ class _ProductListState extends State<ProductList> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        selectedFilter = filter;
-                      });
+                      setState(
+                        () {
+                          selectedFilter = filter;
+                          count;
+                        },
+                      );
                     },
                     child: Chip(
                       // chip is a small comapact widget
@@ -125,49 +138,19 @@ class _ProductListState extends State<ProductList> {
           //   height: 5,
           // ),
 
-          // Expanded(
-          //   child: GridView.builder(
-          //     itemCount: products.length,
-          //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //       crossAxisCount: 2,
-          //     ),
-          //     itemBuilder: (context, index) {
-          //       final product = products[index];
-          //       return GestureDetector(
-          //         onTap: () {
-          //           Navigator.of(context).push(
-          //             MaterialPageRoute(
-          //               builder: (context) {
-          //                 return ProductDetailsPage(product: product);
-          //               },
-          //             ),
-          //           );
-          //         },
-          //         child: ProductCard(
-          //           title: product['title'] as String,
-          //           price: product['price'] as double,
-          //           image: product['imageUrl'] as String,
-          //           backgroundcolor: index.isEven
-          //               ? const Color.fromRGBO(216, 240, 253, 1)
-          //               : const Color.fromRGBO(245, 247, 249, 1),
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth > 1080) {
                   return GridView.builder(
-                    itemCount: products.length,
+                    itemCount: filteredProducts.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 1.75,
                     ),
                     itemBuilder: (context, index) {
-                      final product = products[index];
+                      final product = filteredProducts[index];
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
@@ -192,9 +175,9 @@ class _ProductListState extends State<ProductList> {
                 } else {
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
-                    itemCount: products.length,
+                    itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
-                      final product = products[index];
+                      final product = filteredProducts[index];
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
