@@ -31,20 +31,22 @@ class _ProductListState extends State<ProductList> {
 
   // Filter function to apply both text and selected filter
   void filterProducts(String query) {
-    setState(() {
-      final searchLower = query.toLowerCase();
+    setState(
+      () {
+        final searchLower = query.toLowerCase();
 
-      filteredProducts = products.where((product) {
-        final title = product['title'] as String? ?? '';
-        final company = product['company'] as String? ?? '';
+        filteredProducts = products.where((product) {
+          final title = product['title'] as String? ?? '';
+          final company = product['company'] as String? ?? '';
 
-        final matchesText = title.toLowerCase().contains(searchLower);
-        final matchesFilter =
-            selectedFilter == 'All' || company == selectedFilter;
+          final matchesText = title.toLowerCase().contains(searchLower);
+          final matchesFilter =
+              selectedFilter == 'All' || company == selectedFilter;
 
-        return matchesText && matchesFilter;
-      }).toList();
-    });
+          return matchesText && matchesFilter;
+        }).toList();
+      },
+    );
   }
 
   @override
@@ -106,10 +108,12 @@ class _ProductListState extends State<ProductList> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        selectedFilter = filter;
-                        filterProducts(_searchController.text);
-                      });
+                      setState(
+                        () {
+                          selectedFilter = filter;
+                          filterProducts(_searchController.text);
+                        },
+                      );
                     },
                     child: Chip(
                       side: const BorderSide(
@@ -134,13 +138,45 @@ class _ProductListState extends State<ProductList> {
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth > 1080) {
+                if (814 <= constraints.maxWidth &&
+                    constraints.maxWidth < 1210) {
                   return GridView.builder(
                     itemCount: filteredProducts.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 1.75,
+                      childAspectRatio: 1.1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ProductDetailsPage(product: product);
+                              },
+                            ),
+                          );
+                        },
+                        child: ProductCard(
+                          title: product['title'] as String,
+                          price: product['price'] as double,
+                          image: product['imageUrl'] as String,
+                          backgroundcolor: index.isEven
+                              ? const Color.fromRGBO(216, 240, 253, 1)
+                              : const Color.fromRGBO(245, 247, 249, 1),
+                        ),
+                      );
+                    },
+                  );
+                } else if (constraints.maxWidth >= 1210) {
+                  return GridView.builder(
+                    itemCount: filteredProducts.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 1.35,
                     ),
                     itemBuilder: (context, index) {
                       final product = filteredProducts[index];
