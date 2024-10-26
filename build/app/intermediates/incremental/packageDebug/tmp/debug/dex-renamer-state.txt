@@ -1,4 +1,4 @@
-#Fri Oct 25 17:00:27 IST 2024
-base.0=C\:\\Users\\Dell\\Desktop\\shop_app_flutter\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Sat Oct 26 11:48:11 IST 2024
+base.0=C\:\\Users\\Dell\\Desktop\\Shopping_App-Shoes-\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
