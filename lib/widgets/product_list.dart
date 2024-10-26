@@ -18,8 +18,10 @@ class _ProductListState extends State<ProductList> {
     'Bata',
     'Puma',
   ];
-  late double count = 0;
+
   late String selectedFilter;
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> filteredProducts = products;
 
   @override
   void initState() {
@@ -27,21 +29,32 @@ class _ProductListState extends State<ProductList> {
     selectedFilter = filters[0];
   }
 
-  List<Map<String, dynamic>> get filteredProducts {
-    if (selectedFilter == 'All') {
-      return products;
-    } else {
-      return products.where((product) {
-        return product['company'] == selectedFilter;
+  // Filter function to apply both text and selected filter
+  void filterProducts(String query) {
+    setState(() {
+      final searchLower = query.toLowerCase();
+
+      filteredProducts = products.where((product) {
+        final title = product['title'] as String? ?? '';
+        final company = product['company'] as String? ?? '';
+
+        final matchesText = title.toLowerCase().contains(searchLower);
+        final matchesFilter =
+            selectedFilter == 'All' || company == selectedFilter;
+
+        return matchesText && matchesFilter;
       }).toList();
-    }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
-
-    // final size = MediaQuery.sizeOf(context);
     const border = OutlineInputBorder(
       borderSide: BorderSide(
         color: Color.fromRGBO(225, 225, 225, 1),
@@ -49,19 +62,11 @@ class _ProductListState extends State<ProductList> {
       borderRadius: BorderRadius.horizontal(
         left: Radius.circular(50),
       ),
-
-      //OR
-      //  BorderRadius.only(
-      //   topLeft: Radius.circular(30),
-      //   bottomLeft: Radius.circular(30),
-      // ),
     );
+
     return SafeArea(
-      //safearea is used for present the content at the visible area like leave
-      //the space from the notches
       child: Column(
         children: [
-          // SizedBox(height: 70),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,19 +77,18 @@ class _ProductListState extends State<ProductList> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              const Expanded(
-                // expanded is used to take rest of the space present
+              Expanded(
                 child: SizedBox(
                   height: 60,
                   child: TextField(
-                    decoration: InputDecoration(
+                    controller: _searchController,
+                    onSubmitted: filterProducts,
+                    decoration: const InputDecoration(
                       border: border,
-                      //here focusedborder uses the seed color or else focused color default color is blue
                       focusedBorder: border,
                       enabledBorder: border,
                       prefixIcon: Icon(Icons.search),
                       hintText: 'Search item',
-                      // hintStyle: TextStyle(fontWeight: FontWeight.normal),
                     ),
                   ),
                 ),
@@ -94,25 +98,20 @@ class _ProductListState extends State<ProductList> {
           SizedBox(
             height: 120,
             child: ListView.builder(
-              itemCount: filters.length, // it helps add the value in future
-              //without updating it.
+              itemCount: filters.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
-                // here we can use containers to make the different all widgets
                 final filter = filters[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: GestureDetector(
                     onTap: () {
-                      setState(
-                        () {
-                          selectedFilter = filter;
-                          count;
-                        },
-                      );
+                      setState(() {
+                        selectedFilter = filter;
+                        filterProducts(_searchController.text);
+                      });
                     },
                     child: Chip(
-                      // chip is a small comapact widget
                       side: const BorderSide(
                         color: Color.fromRGBO(245, 247, 249, 1),
                       ),
@@ -123,9 +122,7 @@ class _ProductListState extends State<ProductList> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       label: Text(filter),
-                      labelStyle: const TextStyle(
-                        fontSize: 16,
-                      ),
+                      labelStyle: const TextStyle(fontSize: 16),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 15),
                     ),
@@ -134,10 +131,6 @@ class _ProductListState extends State<ProductList> {
               },
             ),
           ),
-          // const SizedBox(
-          //   height: 5,
-          // ),
-
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
